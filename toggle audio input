@@ -1,0 +1,48 @@
+#Persistent
+#SingleInstance, Force
+; List of audio devices to switch betweendevices := ["Microphone (fifine SC3)", "Microphone (G435 Wireless Gaming Headset)"]
+
+; Hotkey to toggle the audio device
+HotkeyLabel
+$#PgUp::
+    ; Step 1: open Windows 11 Settings menu
+    Run, ms-settings:(Min)
+    Sleep, 1000 ; Wait for the Settings window to open
+    
+    ; Step 2: navigate to the Sound settings within the Windows Settings menu
+    WinActivate, Settings
+    Send, {Tab 5}
+    Send, {Enter}
+    Sleep, 1000 ; Wait for the Sound settings window to open
+    
+    ; Step 3: navigate to the Audio input section
+    Send, {Tab 1}
+    Send, {Enter}
+    Sleep, 1000 ; Wait for the Audio input section to be in focus
+    
+    ; Step 4: detect the active audio input
+    currentDevice := ComObjGet("{1FD27C4E-4F5E-46BB-847B-580F458B8592}\AudioInput&{28D2F6C3-198A-4277-9C87-D87520A0C565}")
+    currentDeviceIndex := 0
+    for key, device in devices {
+        if (currentDevice == device) {
+            currentDeviceIndex := Mod(currentDeviceIndex + 1, devices.Length())
+            break
+        }
+        currentDeviceIndex := currentDeviceIndex + 1
+    }
+    
+    ; Step 5: if active audio input device is "Microphone (fifine SC3)" switch active audio input device to "Microphone (G435 Wireless Gaming Headset)"
+    if (currentDevice == "Microphone (fifine SC3)") {
+        newDevice := "Microphone (G435 Wireless Gaming Headset)"
+    }
+    ; Step 6: if active audio input device is "Microphone (G435 Wireless Gaming Headset)" switch active audio input device to "Microphone (fifine SC3)"
+    else if (currentDevice == "Microphone (G435 Wireless Gaming Headset)") {
+        newDevice := "Microphone (fifine SC3)"
+    }
+    ; Set the new active audio device
+    ComObjSet("{1FD27C4E-4F5E-46BB-847B-5opQF580F458B8592}\AudioInput&{28D2F6C3-198A-4277-9C87-D87520A0C565}", newDevice)
+    ; Update the current active audio device
+    currentDevice := newDevice
+    ; Show a message box to confirm the change
+    MsgBox, Active audio input device has been changed to %currentDevice%.
+return
